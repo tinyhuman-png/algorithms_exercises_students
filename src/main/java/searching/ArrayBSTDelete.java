@@ -132,6 +132,11 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
         return NONE;
     }
 
+    private int min_of_subtree(int node_index) {
+        if(idxLeftNode.get(node_index) == NONE) return node_index;
+        return min_of_subtree(idxLeftNode.get(node_index));
+    }
+
     /**
      * Delete the key (and its associated value) from the BST.
      * @param key the key to delete
