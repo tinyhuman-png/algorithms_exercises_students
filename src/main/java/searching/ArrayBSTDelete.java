@@ -138,8 +138,48 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
      * @return true if the key was deleted, false if the key was not present
      */
     public boolean delete(Key key) {
-        // TODO
-         return false;
+        int index_key = getNodeIndex(key);
+        if (index_key == NONE) return false;
+        if (idxLeftNode.get(index_key) == NONE && idxRightNode.get(index_key) == NONE) {
+            if (index_key != keys.size()-1) {
+                int index_move = keys.size() -1;
+                keys.set(index_key, keys.get(index_move));
+                values.set(index_key, values.get(index_move));
+                idxLeftNode.set(index_key, idxLeftNode.get(index_move));
+                idxRightNode.set(index_key, idxRightNode.get(index_move));
+                for (int i = 0; i < keys.size(); i++) {
+                    if (idxLeftNode.get(i) == index_move) {
+                        idxLeftNode.set(i, index_key);
+                        break;
+                    }
+                    if (idxRightNode.get(i) == index_move) {
+                        idxRightNode.set(i, index_key);
+                        break;
+                    }
+                }
+            }
+            keys.remove(keys.size() -1);
+        }
+
+        //old code to be fixed
+        int successor_deleted_key = min_of_subtree(idxRightNode.get(index_key));
+        for (int i = 0; i < keys.size(); i++) {
+            if (idxLeftNode.get(i) == index_key) {
+                idxLeftNode.set(i, successor_deleted_key);
+                break;
+            }
+            if (idxRightNode.get(i) == index_key) {
+                idxRightNode.set(i, successor_deleted_key);
+                break;
+            }
+        }
+        idxLeftNode.set(successor_deleted_key, idxLeftNode.get(index_key));
+        int successor_right = idxRightNode.get(index_key);
+        idxLeftNode.set(successor_right, idxRightNode.get(successor_deleted_key));
+        idxRightNode.set(successor_deleted_key, successor_right);
+        key = null;
+
+        return true;
     }
 
 

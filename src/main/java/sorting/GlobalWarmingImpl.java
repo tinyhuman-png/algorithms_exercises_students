@@ -1,6 +1,6 @@
 package sorting;
 
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * Author Pierre Schaus
@@ -59,12 +59,39 @@ abstract class GlobalWarming {
 
 public class GlobalWarmingImpl extends GlobalWarming {
 
+    //    private final TreeMap<Integer, Integer> treemap;
+    private int[] altitudeFlat;
+    private int nAltitudePoints;
 
     public GlobalWarmingImpl(int[][] altitude) {
         super(altitude);
-        // TODO
+        nAltitudePoints = altitude.length * altitude.length;
         // expected pre-processing time in the constructror : O(n^2 log(n^2))
 
+//        first try
+//        treemap = new TreeMap<>();
+//        for (int i = 0; i < altitude.length; i++) {
+//            for (int j = 0; j < altitude[0].length; j++) {
+//                if (treemap.containsKey(altitude[i][j])) {
+//                    treemap.compute(altitude[i][j], (k, v) -> v + 1);
+//                } else {
+//                    treemap.put(altitude[i][j], 1);
+//                }
+//            }
+//        }
+//
+//        int unsafecount = 0;
+//        for (Integer key : treemap.keySet()) {
+//            unsafecount += treemap.get(key);
+//            treemap.replace(key, unsafecount);
+//        }
+
+        altitudeFlat = new int[nAltitudePoints];
+        for (int i = 0; i < altitude.length; i++) {
+            System.arraycopy(altitude[i], 0, altitudeFlat, (i * altitude.length), altitude[0].length);
+        }
+
+        altitudeFlat = Arrays.stream(altitudeFlat).sorted().toArray();
     }
 
     /**
@@ -75,7 +102,34 @@ public class GlobalWarmingImpl extends GlobalWarming {
     public int nbSafePoints(int waterLevel) {
         // TODO
         // expected time complexity O(log(n^2))
-         return -1;
+
+//        first try
+//         return (treemap.floorKey(waterLevel) != null)? nAltitudePoints - treemap.floorEntry(waterLevel).getValue() : nAltitudePoints;
+
+        return nAltitudePoints - (dichotomicSearch(0, nAltitudePoints -1, waterLevel) +1);
+    }
+
+    //    return index of the last flooded altitude
+    private int dichotomicSearch(int from, int to, int waterlevel){
+        int mid = (to +from)/2;
+        if (altitudeFlat[mid] == waterlevel) {
+//          search that right neighbour is > waterlevel
+            while(mid < nAltitudePoints -1 && altitudeFlat[mid+1] == waterlevel) {
+                mid++;
+            }
+            return mid;
+        } else if (altitudeFlat[mid] > waterlevel) {
+//            we're too far, go search left
+            if (mid == 0) return -1;
+            return dichotomicSearch(from, mid-1, waterlevel);
+        } else if (altitudeFlat[mid] < waterlevel && mid < nAltitudePoints -1 && altitudeFlat[mid+1] > waterlevel) {
+//            we found it
+            return mid;
+        } else {
+//            go search right
+            if (mid == nAltitudePoints -1) return mid;
+            return dichotomicSearch(mid +1, to, waterlevel);
+        }
     }
 
 

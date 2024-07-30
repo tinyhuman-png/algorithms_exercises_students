@@ -166,10 +166,40 @@ public class MinPQLinked<Key> {
      */
     public Key delMin() {
         // TODO (unfold the comment on top of the file to read the instructions)
-         return null;
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        Key minValue = root.value;
+        if (root.size == 1) {
+            root = null;
+            return minValue;
+        } else if (root.right == null) {
+            root = root.left;
+            return minValue;
+        }
+
+        if (this.greater(root.left, root.right)) {
+            Node left = root.left;
+            root = root.right;
+            reconstruct(left);
+        } else {
+            Node right = root.right;
+            root = root.left;
+            reconstruct(right);
+        }
+
+        return minValue;
     }
 
-
+    public void reconstruct(Node n) {
+        insert(n.value);
+        if (n.left != null) {
+            reconstruct(n.left);
+        }
+        if (n.right != null) {
+            reconstruct(n.right);
+        }
+    }
 
     /***************************************************************************
      * Helper functions for compares and swaps.

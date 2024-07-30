@@ -49,7 +49,7 @@ public interface Stack<E> {
 class LinkedStack<E> implements Stack<E> {
 
     private Node<E> top;        // the node on the top of the stack
-    private int size;        // size of the stack
+    private int size = 0;        // size of the stack
 
     // helper linked list class
     private class Node<E> {
@@ -64,25 +64,44 @@ class LinkedStack<E> implements Stack<E> {
 
     @Override
     public boolean empty() {
-        // TODO Implement empty method
-         return false;
+        return size < 1;
     }
 
     @Override
     public E peek() throws EmptyStackException {
-        // TODO Implement peek method
-         return null;
+        if (size == 0) {
+            throw new EmptyStackException();
+        } else {
+            return top.item;
+        }
     }
 
     @Override
     public E pop() throws EmptyStackException {
-        // TODO Implement pop method
-         return null;
+        if (size == 0) {
+            throw new EmptyStackException();
+        } else {
+            E removed = top.item;
+            if (size == 1) {
+                top = null;
+            } else {
+               top = top.next;
+            }
+            size --;
+            return removed;
+        }
     }
 
     @Override
     public void push(E item) {
-        // TODO Implement push method
+        if (size == 0) {
+            Node<E> new_top = new Node<>(item, null);
+            top = new_top;
+        } else {
+            Node<E> new_top = new Node<>(item, top);
+            top = new_top;
+        }
+        size ++;
     }
 }
 
@@ -94,36 +113,43 @@ class LinkedStack<E> implements Stack<E> {
  * You are not allowed to use classes from java.util
  * @param <E>
  */
-class ArrayStack<E> implements Stack<E> {
+class  ArrayStack<E> implements Stack<E> {
 
     private E[] array;        // array storing the elements on the stack
-    private int size;        // size of the stack
+    private int size;// size of the stack
 
     public ArrayStack() {
-        array = (E[]) new Object[10];
+        this.array = (E[]) new Object[10];
     }
 
     @Override
     public boolean empty() {
-        // TODO Implement empty method
-         return false;
+        return this.size == 0;
     }
 
     @Override
     public E peek() throws EmptyStackException {
-        // TODO Implement peek method
-         return null;
+        if (this.size == 0) throw new EmptyStackException();
+        return this.array[size-1];
     }
 
     @Override
     public E pop() throws EmptyStackException {
-        // TODO Implement pop method
-         return null;
+        if (size == 0) throw new EmptyStackException();
+        E e= this.array[size-1];
+        this.array[size-1] = null;
+        size--;
+         return e;
     }
 
     @Override
     public void push(E item) {
-        // TODO Implement push method
+        if(size == this.array.length){
+            E[] newArray = (E[]) new Object[this.array.length * 2];
+            System.arraycopy(array, 0 ,newArray,0 , this.array.length);
+            this.array= newArray;
+        }
+        array[size]=item;
+        size++;
     }
 }
-

@@ -3,7 +3,7 @@ package sorting;
 /**
  * In this task, you must implement the `push` operation on a binary heap data structure.
  * As a reminder, a heap is a tree data structure such that the following invariant is respected
- *  
+ *
  *      For any node in the tree, the value associated with the node is higher (for a maxHeap) or lower
  *      (for a minHeap) than the value of its children.
  *
@@ -40,6 +40,32 @@ public class BinaryHeap {
      * @param value the added value
      */
     public void push(int value) {
+        if (this.size == this.content.length -1) {
+            increaseSize();
+        }
+        this.content[this.size +1] = value;
+        this.size ++;
+        swim(this.size);
+    }
+
+    public void swim(int index) {
+        if (index > 1) {
+            int parent;
+            if (index % 2 == 1) {
+                parent = (index -1)/2;
+            } else {
+                parent = index/2;
+            }
+
+            if (this.content[parent] > this.content[index]) {
+                // child is smaller than parent, swap the two
+                int temp = this.content[parent];
+                this.content[parent] = this.content[index];
+                this.content[index] = temp;
+
+                swim(parent);
+            }
+        }
     }
 
     /**

@@ -57,7 +57,7 @@ public class MinMaxHeap<Key extends Comparable<Key>> {
      * Expected time complexity: O(1)
      */
     public Key min() {
-         return null;
+        return this.content[1];
     }
 
     /**
@@ -65,7 +65,10 @@ public class MinMaxHeap<Key extends Comparable<Key>> {
      * Expected time complexity: O(1)
      */
     public Key max() {
-         return null;
+        if (this.size == 1) { return this.content[1];}
+        if (this.size == 2) {return this.content[2];}
+        return this.higherThan(this.content[2], this.content[3])? this.content[2] : this.content[3];
+//        return this.content[2].compareTo(this.content[3]) < 0? this.content[3] : this.content[2];
     }
 
     /**
@@ -107,7 +110,7 @@ public class MinMaxHeap<Key extends Comparable<Key>> {
      * @param position The index in the `content` array for which the depth must be computed
      */
     private int getNodeDepth(int position) {
-        // There is no log2 function in java.lang.Math so we use this little 
+        // There is no log2 function in java.lang.Math so we use this little
         // formula to compute the log2 of K (which give, when rounded to its
         // integer value, the depth of the index)
         return (int) (log(position) / log(2));
@@ -119,8 +122,55 @@ public class MinMaxHeap<Key extends Comparable<Key>> {
      * @param position The position of the node to swim in the `content` array
      */
     public void swim(int position) {
+        if (position > 1) {
+            int parent = position/2;
+            int depth = this.getNodeDepth(position);
+            if (depth % 2 == 0) {
+                //we are at a min depth -> parent is max, child cannot be higher than parent
+                if (this.higherThan(this.content[position], this.content[parent])) {
+                    if (depth == 2) {
+                        int otherparent = (parent ==  2)? 3 : 2;
+                        if (this.higherThan(this.content[position], this.content[otherparent])){
+                            parent = (this.lessThan(this.content[parent], this.content[otherparent]))? parent : otherparent;
+                        }
+                    }
+                    this.swap(position, parent);
+                    this.swimMax(parent); //we swapped so the value is now at max depth
+                } else {
+                    this.swimMin(position);
+                }
+            } else {
+                //we are at max depth -> parent is min, child cannot be less than parent
+                if (this.lessThan(this.content[position], this.content[parent])) {
+                    this.swap(position, parent);
+                    this.swimMin(parent); //we swapped so the value is now at max depth
+                } else {
+                    this.swimMax(position);
+                }
+            }
+
+        }
     }
 
+    public void swimMin(int position) {
+        if (position > 4) {
+            int grandparent = position/4;
+            if (this.lessThan(this.content[position], this.content[grandparent])) {
+                this.swap(position, grandparent);
+                this.swimMin(grandparent);
+            }
+        }
+    }
+
+    public void swimMax(int position) {
+        if (position > 4) {
+            int grandparent = position/4;
+            if (this.higherThan(this.content[position], this.content[grandparent])) {
+                this.swap(position, grandparent);
+                this.swimMin(grandparent);
+            }
+        }
+    }
     /**
      * Inserts a new value in the heap
      *

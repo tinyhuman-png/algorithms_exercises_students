@@ -82,12 +82,126 @@ public class DroneContest {
      * and B.time (exclusive) is EXACTLY A.height (i.e. there exists a drone with this height active between these
      * times). Moreover, A.height != B.height.
      */
+
     public static LinkedList<HeightChange> findHighest(Drone[] participants) {
         // TODO
-         return null;
+
+        ArrayList<HeightChange> workingList = new ArrayList<>();
+        workingList.add(new HeightChange(0,0));
+        for (Drone drone : participants) {
+            HeightChange current = workingList.get(0);
+            int index = 1;
+            while(index != workingList.size() && drone.start > current.time) {
+                current = workingList.get(index);
+                index++;
+            }
+
+            //here workingList[index] is the first to be > drone.start,
+            //or every time is < drone.start and we made it to the end of list
+
+        }
+
+        return null;
+
+
+
+
+
+//        Stack<HeightChange> principal_heap = new Stack<>();
+//        Stack<HeightChange> secondary_heap = new Stack<>();
+//
+//        principal_heap.push(new HeightChange(0,0));
+//
+//        for (Drone drone : participants) {
+//            HeightChange current, previous;
+//            if (principal_heap.size() == 1) {
+//                principal_heap.push(new HeightChange(drone.start, drone.height));
+//                principal_heap.push(new HeightChange(drone.end,0));
+//                continue;
+//            }
+//
+//            do {
+//                current = principal_heap.peek();
+//                secondary_heap.push(principal_heap.pop());
+//                previous = principal_heap.peek();
+//            } while (drone.start < previous.time);
+//
+//            // here drone.start >= previous.time
+//            if (drone.height > previous.height) {
+//                //start
+//                if (drone.start == previous.time) {
+//                    principal_heap.pop();
+//                }
+//                principal_heap.push(new HeightChange(drone.start, drone.height));
+//
+//                //end
+//                if (drone.end < current.time) {
+//                    principal_heap.push(new HeightChange(drone.end, previous.height));
+//                }
+//            }
+//
+//            secondary_heap.pop();
+//            if (!secondary_heap.isEmpty()) {
+//                HeightChange temp = current;
+//                current = secondary_heap.peek();
+//                previous = temp;
+//                while (drone.end >= current.time) {
+//                    if (drone.height > previous.height) {
+//                        //start
+//                        if (drone.start == previous.time) {
+//                            secondary_heap.pop();
+//                        } else {
+//                            principal_heap.push(secondary_heap.pop());
+//                        }
+//                        principal_heap.push(new HeightChange(drone.start, drone.height));
+//
+//                        //end
+//                        if (drone.end < current.time) {
+//                            principal_heap.push(new HeightChange(drone.end, previous.height));
+//                        }
+//                        if (secondary_heap.isEmpty()) break;
+//
+//                        previous = new HeightChange(drone.start, drone.height);
+//                        current = secondary_heap.peek();
+//                    } else if (drone.height < previous.height) {
+//                        principal_heap.push(secondary_heap.pop());
+//                        if (secondary_heap.isEmpty()) break;
+//
+//                        previous = current;
+//                        current = secondary_heap.peek();
+//                    } else {
+//                        secondary_heap.pop();
+//                        if (secondary_heap.isEmpty()) break;
+//
+//                        previous = current;
+//                        current = secondary_heap.peek();
+//                    }
+//                }
+//
+//                if (!secondary_heap.isEmpty()) {
+//                    while(!secondary_heap.isEmpty()) {
+//                        principal_heap.push(secondary_heap.pop());
+//                    }
+//                }
+//            }
+//
+//            if (drone.end >= current.time) {
+//                if (drone.end > current.time && drone.height != previous.height) {
+//                    principal_heap.push(new HeightChange(current.time, drone.height));
+//                }
+//                principal_heap.push(new HeightChange(drone.end, 0));
+//            }
+//
+//            //here either secondary heap is empty while drone.end >= current.time (current is the last interval)
+//        }
+//
+//        LinkedList<HeightChange> heightChanges = new LinkedList<>();
+//
+//        while (!principal_heap.isEmpty()) {
+//            heightChanges.addLast(principal_heap.pop());
+//        }
+//        return heightChanges;
     }
-
-
 
 }
 

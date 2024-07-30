@@ -23,6 +23,18 @@ public class ClosestPair {
       * @param x the target value for the sum
       */
     public static int[] closestPair(int [] a, int x) {
-         return null; // TODO
+        int smallestDiff = Integer.MAX_VALUE;
+        int[] indexes = {0, 0};
+
+        for (int i = 0; i < a.length; i++) {
+            for (int j = i; j < a.length; j++) {
+                if (x - (a[i] + a[j]) < smallestDiff) {
+                    smallestDiff = x - (a[i] + a[j]);
+                    indexes[0] = i;
+                    indexes[1] = j;
+                }
+            }
+        }
+        return indexes;
     }
 }
