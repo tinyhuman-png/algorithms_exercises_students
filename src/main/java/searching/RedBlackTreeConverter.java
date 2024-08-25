@@ -42,9 +42,65 @@ public class RedBlackTreeConverter {
      * @return a RBNode which is the root of the equivalent RedBlackTRee
      */
     public static<Key extends Comparable<Key>> RBNode<Key> convert(TwoThreeNode<Key> twoThreeNode) {
-         return null;
+        if (twoThreeNode == null) {
+            return null;
+        }
+
+        RBNode<Key> new_root;
+        if (twoThreeNode.is2node()) {
+            new_root = new RBNode<>(twoThreeNode.leftKey, twoThreeNode.leftValue, Color.Black, 1);
+            new_root.size += navigate(new_root, twoThreeNode, false);
+        } else {
+            new_root = new RBNode<>(twoThreeNode.rightKey, twoThreeNode.rightValue, Color.Black, 1);
+            new_root.size += navigate(new_root, twoThreeNode, true);
+        }
+
+        return new_root;
     }
-    
+
+    private static<Key extends Comparable<Key>> int navigate(RBNode<Key> RBRoot, TwoThreeNode<Key> twoThreeRoot, boolean is3Node) {
+        if (twoThreeRoot.isLeaf() && !is3Node) return 0;
+
+        TwoThreeNode<Key> left23 = twoThreeRoot.leftChild;
+        TwoThreeNode<Key> center23 = twoThreeRoot.centerChild;
+        TwoThreeNode<Key> right23 = twoThreeRoot.rightChild;
+
+        if (is3Node) {
+            RBRoot.leftChild = new RBNode<>(twoThreeRoot.leftKey, twoThreeRoot.leftValue, Color.Red, 1);
+            if (twoThreeRoot.isLeaf()) return 1;
+            RBRoot.leftChild.size += navigate(RBRoot.leftChild, twoThreeRoot, false);
+
+            checkNodeOnRight(RBRoot, right23);
+        } else {
+            if (left23.is2node()) {
+                RBRoot.leftChild = new RBNode<>(left23.leftKey, left23.leftValue, Color.Black, 1);
+                RBRoot.leftChild.size += navigate(RBRoot.leftChild, left23, false);
+            } else {
+                RBRoot.leftChild = new RBNode<>(left23.rightKey, left23.rightValue, Color.Black, 1);
+                RBRoot.leftChild.size += navigate(RBRoot.leftChild, left23, true);
+            }
+
+            checkNodeOnRight(RBRoot, center23);
+
+        }
+
+        int size = RBRoot.leftChild.size;
+        if (RBRoot.rightChild != null) {
+            size += RBRoot.rightChild.size;
+        }
+        return size; //???
+    }
+
+    private static <Key extends Comparable<Key>> void checkNodeOnRight(RBNode<Key> RBNode, TwoThreeNode<Key> TwoThreeNode) {
+        if (TwoThreeNode != null && TwoThreeNode.is2node()) {
+            RBNode.rightChild = new RBNode<>(TwoThreeNode.leftKey, TwoThreeNode.leftValue, Color.Black, 1);
+            RBNode.rightChild.size += navigate(RBNode.rightChild, TwoThreeNode, false);
+        } else if (TwoThreeNode != null) {
+            RBNode.rightChild = new RBNode<>(TwoThreeNode.rightKey, TwoThreeNode.rightValue, Color.Black, 1);
+            RBNode.rightChild.size += navigate(RBNode.rightChild, TwoThreeNode, true);
+        }
+    }
+
     public static enum Color {
         Red,
         Black

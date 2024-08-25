@@ -56,6 +56,13 @@ public class ArrayBST<Key extends Comparable<Key>, Value> {
         idxRightNode = new ArrayList<>();
     }
 
+    private void addNode(Key key, Value val, int left, int right) {
+        keys.add(key);
+        values.add(val);
+        idxLeftNode.add(left);
+        idxRightNode.add(right);
+    }
+
     /**
      * Insert the entry in the BST, replace the value if the key is already present
      * in O(h) where h is the height of the tree
@@ -64,7 +71,40 @@ public class ArrayBST<Key extends Comparable<Key>, Value> {
      * @return true if the key was added, false if already present and the value has simply been erased
      */
     public boolean put(Key key, Value val) {
-         return false;
+        if (keys.isEmpty()) {
+            // no element yet
+            addNode(key, val, -1, -1);
+            return true;
+        }
+
+        int indx = 0;
+        Key keyToCompare;
+        while(true) {
+            keyToCompare = keys.get(indx);
+
+            if (keyToCompare.compareTo(key) > 0) {
+                //go left
+                if (idxLeftNode.get(indx) == NONE) {
+                    int size = keys.size();
+                    addNode(key, val, -1, -1);
+                    idxLeftNode.set(indx, size);
+                    return true;
+                }
+                indx = idxLeftNode.get(indx);
+            } else if (keyToCompare.compareTo(key) < 0) {
+                //go right
+                if (idxRightNode.get(indx) == NONE) {
+                    int size = keys.size();
+                    addNode(key, val, -1, -1);
+                    idxRightNode.set(indx, size);
+                    return true;
+                }
+                indx = idxRightNode.get(indx);
+            } else {
+                values.set(indx, val);
+                return false;
+            }
+        }
     }
 
     /**
@@ -74,7 +114,20 @@ public class ArrayBST<Key extends Comparable<Key>, Value> {
      * @return the value attached to this key, null if the key is not present
      */
     public Value get(Key key) {
-         return null;
+        int indx = 0;
+        Key keyToCompare;
+        while (indx != -1) {
+            keyToCompare = keys.get(indx);
+
+            if (keyToCompare.compareTo(key) > 0) {
+                indx = idxLeftNode.get(indx);
+            } else if (keyToCompare.compareTo(key) < 0) {
+                indx = idxRightNode.get(indx);
+            } else {
+                return values.get(indx);
+            }
+        }
+        return null;
     }
 
 

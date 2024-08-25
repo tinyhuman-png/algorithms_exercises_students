@@ -31,4 +31,17 @@ public class PreorderToBSTTest {
 
     }
 
+    @Test
+    @Grade(value=1, cpuTimeout = 1000)
+    @GradeFeedback(message="Sorry, something is wrong with your algorithm. Debug first on this small example")
+    @Order(1)
+    public void testSimple2() {
+        int[] preOrderInput = {10,5,3,1,4,7,6,8,15,12,11,13,19,17,23};
+        PreorderToBST student = new PreorderToBST(preOrderInput);
+        PreorderToBST teacher = new PreorderToBST();
+        teacher.root = new PreorderToBST.Node(new PreorderToBST.Node(new PreorderToBST.Node(new PreorderToBST.Node(null, null, 1), new PreorderToBST.Node(null, null, 4), 3), new PreorderToBST.Node(new PreorderToBST.Node(null, null, 6), new PreorderToBST.Node(null, null, 8), 7), 5), new PreorderToBST.Node(new PreorderToBST.Node(new PreorderToBST.Node(null, null, 11), new PreorderToBST.Node(null, null, 13), 12), new PreorderToBST.Node(new PreorderToBST.Node(null, null, 17), new PreorderToBST.Node(null, null, 23), 19), 15), 10);
+        assertEquals(teacher, student);
+
+    }
+
 }

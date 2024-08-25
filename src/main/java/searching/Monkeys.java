@@ -1,7 +1,6 @@
 package searching;
 
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -74,12 +73,101 @@ public class Monkeys {
      * the size of the input.
      */
     public static long evaluateRoot(List<Monkey> input) {
-         return -1;
+        HashMap<String, MonkeyNode> nameToNode = new HashMap<>();
+        for (Monkey mon : input) {
+            if (mon instanceof YellingMonkey) {
+                YellingMonkey monkey = (YellingMonkey) mon;
+                if (!nameToNode.containsKey(monkey.name)) {
+                    nameToNode.put(monkey.name, new MonkeyNode(monkey.name, (long) monkey.number));
+                } else {
+                    MonkeyNode node = nameToNode.get(monkey.name);
+                    node.result = (long) monkey.number;
+                }
+            } else { //OperationMonkey
+                OperationMonkey monkey = (OperationMonkey) mon;
+                MonkeyNode leftNode;
+                if (!nameToNode.containsKey(monkey.leftMonkey)) {
+                    leftNode = new MonkeyNode(monkey.leftMonkey);
+                    nameToNode.put(monkey.leftMonkey, leftNode);
+                } else {
+                    leftNode = nameToNode.get(monkey.leftMonkey);
+                }
 
+                MonkeyNode rightNode;
+                if (!nameToNode.containsKey(monkey.rightMonkey)) {
+                    rightNode = new MonkeyNode(monkey.rightMonkey);
+                    nameToNode.put(monkey.rightMonkey, rightNode);
+                } else {
+                    rightNode = nameToNode.get(monkey.rightMonkey);
+                }
+
+                if (!nameToNode.containsKey(monkey.name)) {
+                    nameToNode.put(monkey.name, new MonkeyNode(monkey.name, leftNode, rightNode, monkey.op));
+                } else {
+                    MonkeyNode node = nameToNode.get(monkey.name);
+                    node.leftNode = leftNode;
+                    node.rightNode = rightNode;
+                    node.op = monkey.op;
+                }
+            }
+        }
+
+        if (!nameToNode.containsKey("root")) return 0;
+        MonkeyNode rootNode = nameToNode.get("root");
+
+        recursiveEval(rootNode);
+        return rootNode.result;
+    }
+
+    private static void recursiveEval(MonkeyNode node) {
+        if (node.leftNode == null || node.rightNode == null) return;
+
+        recursiveEval(node.leftNode);
+        recursiveEval(node.rightNode);
+
+        switch (node.op){
+            case '+':
+                node.result = node.leftNode.result + node.rightNode.result;
+                break;
+            case '-':
+                node.result = node.leftNode.result - node.rightNode.result;
+                break;
+            case '/':
+                node.result = node.leftNode.result / node.rightNode.result;
+                break;
+            case '*':
+                node.result = node.leftNode.result * node.rightNode.result;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
 
+    //good idea the node custom -> a approfondir
+    static class MonkeyNode {
+        String name;
+        Long result;
+        char op;
+        MonkeyNode leftNode;
+        MonkeyNode rightNode;
 
+        public MonkeyNode(String monkeyName) {
+            this.name = monkeyName;
+        }
+
+        public MonkeyNode(String monkeyName, Long monkeyResult) {
+            this.name = monkeyName;
+            this.result = monkeyResult;
+        }
+
+        public MonkeyNode(String monkeyName, MonkeyNode leftNode, MonkeyNode rightNode, char operation) {
+            this.name = monkeyName;
+            this.leftNode = leftNode;
+            this.rightNode = rightNode;
+            this.op = operation;
+        }
+    }
 
 
     static class Monkey {
@@ -100,12 +188,29 @@ public class Monkeys {
     static class OperationMonkey extends Monkey {
         char op;
         String leftMonkey;
+        Long leftLong;
         String rightMonkey;
+        Long rightLong;
+
         public OperationMonkey(String name, String left, char op, String right) {
             this.name = name;
             this.leftMonkey = left;
             this.op = op;
             this.rightMonkey = right;
+        }
+
+        public Long doOperation() {
+            if (leftLong == null || rightLong == null) return null;
+            switch (op){
+                case '+':
+                    return leftLong + rightLong;
+                case '-':
+                    return leftLong - rightLong;
+                case '/':
+                    return leftLong / rightLong;
+                default:
+                    return leftLong * rightLong;
+            }
         }
 
         @Override

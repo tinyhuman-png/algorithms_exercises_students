@@ -1,5 +1,9 @@
 package searching;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 /**
  * We are interested in the implementation of an LRU cache,
  * i.e. a (hash)-map of limited capacity where the addition of
@@ -56,17 +60,92 @@ package searching;
 public class LRUCache<K,V> {
 
     private int capacity;
+    private HashMap<K, Node> map;
+    private Node LRU;
+    private Node MRU;
 
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
+        this.map = new HashMap<>();
     }
 
     public V get(K key) {
-         return null;
+        if (!this.map.containsKey(key)) {
+            return null;
+        }
+
+        Node n = this.map.get(key);
+        this.remove(n);
+        this.addFirst(n);
+
+        return n.value;
     }
 
     public void put(K key, V value) {
+        Node new_node;
+        if (!this.map.containsKey(key)) {
+            new_node = new Node(key, value, null, null);
+            this.addFirst(new_node);
+
+            this.map.put(key, new_node);
+        } else {
+            new_node = map.get(key);
+            new_node.value = value;
+
+            this.remove(new_node);
+            this.addFirst(new_node);
+        }
+
+        if (this.map.size() > this.capacity) {
+            K keyToremove = this.LRU.key;
+            this.map.remove(keyToremove);
+
+            this.remove(this.LRU);
+        }
     }
 
+    private void remove(Node node) {
+        if (node.next == null && node.previous == null) {
+            this.LRU = null;
+            this.MRU = null;
+        } else if (node.next != null && node.previous != null) {
+            node.next.previous = node.previous;
+            node.previous.next = node.next;
+        } else if (node.next == null) {
+            node.previous.next = null;
+            this.MRU = node.previous;
+        } else {
+            node.next.previous = null;
+            this.LRU = node.next;
+        }
+    }
+
+    private void addFirst(Node node) {
+        if (this.MRU == null) {
+            node.previous = null;
+            node.next = null;
+            this.LRU = node;
+            this.MRU = node;
+        } else {
+            node.previous = this.MRU;
+            this.MRU.next = node;
+            node.next = null;
+            this.MRU = node;
+        }
+    }
+
+    private class Node {
+        public K key;
+        public V value;
+        public Node previous;
+        public Node next;
+
+        public Node(K key, V value, Node prev, Node next) {
+            this.key = key;
+            this.value = value;
+            this.previous = prev;
+            this. next = next;
+        }
+    }
 }

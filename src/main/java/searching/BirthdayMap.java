@@ -1,9 +1,6 @@
 package searching;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -26,8 +23,10 @@ import java.util.TreeMap;
 class BirthdayMap {
     // Hint: feel free to use existing java classes from Java such as java.util.TreeMap
 
+    TreeMap<Birthday, List<Person>> birthdayTree;
+
     BirthdayMap() {
-        // TODO
+        birthdayTree = new TreeMap<>();
     }
 
     /**
@@ -38,7 +37,16 @@ class BirthdayMap {
      * @param person
      */
     void addPerson(Person person) {
-        // TODO
+        Birthday newbd = new Birthday(person.birthday);
+        List<Person> value;
+        if (birthdayTree.containsKey(newbd)) {
+            value = birthdayTree.get(newbd);
+            value.add(person);
+        } else {
+            value = new ArrayList<>();
+            value.add(person);
+            birthdayTree.put(newbd, value);
+        }
     }
 
     /**
@@ -49,8 +57,12 @@ class BirthdayMap {
      *          An empty list is returned if no entries are found for the specified date.
      */
     List<Person> getPeopleBornOnDate(String date) {
-        // TODO
-         return null;
+        Birthday birthdayDate = new Birthday(date);
+        if (birthdayTree.containsKey(birthdayDate)) {
+            return birthdayTree.get(birthdayDate);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
 
@@ -63,8 +75,24 @@ class BirthdayMap {
      *         If no entries are found for the specified year, the function returns an empty list.
      */
     List<Person> getPeopleBornInYear(String year) {
-        // TODO
-         return null;
+        Birthday endOfYear = new Birthday(year.concat("-12-31"));
+
+        Birthday floor = birthdayTree.floorKey(endOfYear);
+        Birthday ceiling = birthdayTree.ceilingKey(new Birthday(year.concat("-01-01")));
+
+        if (floor != null && ceiling != null && floor.year == Integer.parseInt(year)) {
+            if (floor.equals(ceiling)) {
+                return birthdayTree.floorEntry(endOfYear).getValue();
+            } else {
+                List<Person> ret = new ArrayList<>();
+                SortedMap<Birthday, List<Person>> range = birthdayTree.subMap(ceiling, true, floor, true);
+                for (List<Person> people : range.values()) {
+                    ret.addAll(people);
+                }
+                return ret;
+            }
+        }
+         return new ArrayList<>();
     }
 
 
@@ -102,3 +130,30 @@ class Person {
     }
 }
 
+class Birthday implements Comparable {
+    int year;
+    int month;
+    int day;
+
+    //String date must be of format YYYY-MM-DD
+    Birthday(String date) {
+        String[] separation = date.split("-");
+        year = Integer.parseInt(separation[0]);
+        month = Integer.parseInt(separation[1]);
+        day = Integer.parseInt(separation[2]);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (this == o) return 0;
+        if (o.getClass() != this.getClass()){
+            throw new ClassCastException("You must compare 2 instances of the same Class");
+        }
+        Birthday other = (Birthday) o;
+        if (this.year != other.year) {
+            return Integer.compare(this.year, other.year);
+        } else if (this.month != other.month) {
+            return Integer.compare(this.month, other.month);
+       } else return Integer.compare(this.day, other.day);
+    }
+}
