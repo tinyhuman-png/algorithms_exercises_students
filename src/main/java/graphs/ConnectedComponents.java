@@ -26,16 +26,33 @@ public class ConnectedComponents {
      * @return the number of connected components in g
      */
     public static int numberOfConnectedComponents(Graph g) {
-        // TODO
-         return -1;
+        // typically use dfs that will color all nodes connected to source, and add a count
+        boolean[] marked = new boolean[g.V()];
+        int count = 0;
+        for (int i = 0; i < g.V(); i++) {
+            if (!marked[i]) {
+                count ++;
+                marked[i] = true;
+                dfs(g, i, marked);
+            }
+        }
+         return count;
+    }
+
+    private static void dfs(Graph g, int source, boolean[] marked) {
+        marked[source] = true;
+        for (int v : g.adj(source)) {
+            if (!marked[v]) {
+                dfs(g, v, marked);
+            }
+        }
     }
 
     static class Graph {
 
         private List<Integer>[] edges;
 
-        public Graph(int nbNodes)
-        {
+        public Graph(int nbNodes) {
             this.edges = (ArrayList<Integer>[]) new ArrayList[nbNodes];
             for (int i = 0;i < edges.length;i++)
             {

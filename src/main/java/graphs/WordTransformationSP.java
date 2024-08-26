@@ -48,8 +48,72 @@ public class WordTransformationSP {
      * @return
      */
     public static int minimalCost(String from, String to) {
-        // TODO
-         return 0;
+        int lengthFrom = from.length();
+        if (lengthFrom != to.length()) return -1;
+
+        HashMap<String, Integer> distToFrom = new HashMap<>();
+        distToFrom.put(from, 0);
+
+        //je pense que le mieux c'est de construire le graphe au fur et � mesure sinon ca va prendre masse de m�moire
+        PriorityQueue<Entry> pq = new PriorityQueue<>();  //ATTENTION dans priorityqueue on doit mettre des comparable (?)
+        pq.add(new Entry(from, 0));
+        while(!pq.isEmpty()) {
+            Entry v = pq.poll();
+            String value = v.value;
+            for (int i = 0; i < lengthFrom -1; i++) {
+                for (int j = i +2; j < lengthFrom +1; j++) {
+                    String adjacent = rotation(value, i, j);
+                    if (!distToFrom.containsKey(adjacent) || distToFrom.get(adjacent) > distToFrom.get(value) + (j-i)) {
+                        distToFrom.put(adjacent, distToFrom.get(value) + (j-i));
+                        pq.add(new Entry(adjacent, distToFrom.get(value) + (j-i)));
+                    }
+                }
+            }
+
+        }
+
+         return distToFrom.get(to);
+    }
+
+    private static class Entry implements Comparable<Entry> {
+        public String value;
+        public int distance;
+
+        public Entry(String string, int dist) {
+            this.value = string;
+            this.distance = dist;
+        }
+        @Override
+        public int compareTo(Entry o) {
+            return this.distance - o.distance;
+        }
+    }
+
+
+
+    //nopp not useful :((
+    private static HashMap<String, Node> adjacentStrings(Node source, int length) {
+        if (length < 2) return null;
+        HashMap<String, Node> map = new HashMap<>();
+        for (int i = 0; i < length -2; i++) {
+            for (int j = i +2; j < length +1; j++) {
+                map.putIfAbsent(rotation(source.value, i, j), new Node(rotation(source.value, i, j), j-i, source));
+            }
+        }
+        return map;
+    }
+
+    private static class Node {
+        public int distToSource = Integer.MAX_VALUE;
+        public String value;
+        public int costFromParent;
+        public Node parent;
+
+        public Node(String value, int costFromParent, Node parent) {
+            this.value = value;
+            this.costFromParent = costFromParent;
+            this.parent = parent;
+        }
     }
 
 

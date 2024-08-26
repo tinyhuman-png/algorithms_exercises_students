@@ -1,6 +1,10 @@
 package graphs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Sophie and Marc want to reduce the bubbles
@@ -86,8 +90,65 @@ public class Bubbles {
      *         ForbiddenRelation and in the list.
      */
     public static List<ForbiddenRelation> cleanBubbles(List<Contact> contacts, int n) {
-        // TODO
-         return null;
+        HashMap<String, HashSet<String>> adj = new HashMap<>();
+        for (Contact contact : contacts) {
+            String persA = contact.a;
+            String persB = contact.b;
+
+//            HashSet<String> bubbleA;
+//            if (!adj.containsKey(persA)) {
+//                bubbleA = new HashSet<>();
+//                bubbleA.add(persB);
+//                adj.put(persA, bubbleA);
+//            } else {
+//                bubbleA = adj.get(persA);
+//                bubbleA.add(persB);
+//            }
+//
+//            HashSet<String> bubbleB;
+//            if (!adj.containsKey(persB)) {
+//                bubbleB = new HashSet<>();
+//                bubbleB.add(persA);
+//                adj.put(persB, bubbleB);
+//            } else {
+//                bubbleB = adj.get(persB);
+//                bubbleB.add(persA);
+//            }
+
+            adj.computeIfAbsent(persA, k -> new HashSet<>()).add(persB);
+            adj.computeIfAbsent(persB, k -> new HashSet<>()).add(persA);
+        }
+
+        HashSet<String> infractionPers = new HashSet<>();
+        for (String pers : adj.keySet()) {
+            if (adj.get(pers).size() > n) {
+                infractionPers.add(pers);
+            }
+        }
+
+        List<ForbiddenRelation> forbList = new ArrayList<>();
+        for (String pers : infractionPers) {
+            HashSet<String> bubble = adj.get(pers);
+            String[] matches = bubble.stream().filter(infractionPers::contains).toArray(String[]::new);
+            //or  Set<String> matches = bubble.stream().filter(infractionPers::contains).collect(Collectors.toSet());
+
+            for (String match : matches) {
+                if (bubble.size() <= n) break;
+                if (adj.get(match).size() <= n) continue;
+
+                forbList.add(new ForbiddenRelation(pers, match));
+                bubble.remove(match);
+                adj.get(match).remove(pers);
+            }
+            while (bubble.size() > n) {
+                String toRemove = bubble.iterator().next();
+                forbList.add(new ForbiddenRelation(pers, toRemove));
+                bubble.remove(toRemove);
+                adj.get(toRemove).remove(pers);
+            }
+        }
+
+        return forbList;
     }
 
 }
