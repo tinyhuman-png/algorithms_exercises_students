@@ -1,7 +1,7 @@
 package strings;
 
 
-
+import java.util.PriorityQueue;
 
 /**
  * This class is used to construct a Huffman trie from frequencies of letters (in unicode or ASCII).
@@ -34,7 +34,25 @@ public class Huffman {
      * @param freq the frequencies of the characters, freq[i] = frequency of character i
      */
     public static HuffmanNode buildTrie(int [] freq) {
-         return null;
+        PriorityQueue<HuffmanNode> pqueue = new PriorityQueue<>();  //attention penser a la PQ, soutient toute la logique de la formation du trie!
+        for (char c = 0; c <= freq.length -1; c++) {
+            if (freq[c] > 0) {  //pour que ca passe sur ingenious enlever cette condition mais ??? je comprends pas c'est pas logique d'ajouter un code pour des lettres qui sont pas dans le texte a compresser??
+                HuffmanNode newNode = new HuffmanNode(c, freq[c], null, null);
+                pqueue.add(newNode);
+            }
+        }
+
+        while (pqueue.size() >= 2) {
+            HuffmanNode rightNode = pqueue.poll();
+            HuffmanNode leftNode = pqueue.poll();
+
+            HuffmanNode newNode = new HuffmanNode('\0', leftNode.getFrequency() + rightNode.getFrequency(), leftNode, rightNode);
+            pqueue.add(newNode);
+        }
+
+        HuffmanNode root = pqueue.poll();
+
+        return root;
     }
 }
 

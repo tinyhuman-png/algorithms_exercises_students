@@ -50,12 +50,12 @@ public class IncrementalHash {
      *
      */
     public int nextHash(char[] t, int previousHash, int from) {
-        // TODO
         //  Hint1: To compute hash[t]  in O(1) you should not iterate over M entries of t,
-        //  by developing h[t], you should realize that is has a lot of common with h[t-1] = previousHash
+        //  by developing h[t], you should realize that it has a lot of common with h[t-1] = previousHash
         //  The RM values computed above might help you as well in the computation.
         //  Hint2: Modulo operator is distributive (A + B) % Q = (A % Q + B % Q) % Q (property exploited by Horners's method)
         //  Hint3: To compute B % Q if you have x = (A + B) % Q, you should do (x + Q - A % Q) % Q
-         return 0;
+
+         return ((previousHash + Q - t[from -1]*RM % Q)*R + t[from +M -1]) % Q;
     }
 }
