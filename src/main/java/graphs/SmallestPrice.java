@@ -47,12 +47,82 @@ public class SmallestPrice {
      *         or -1 if there is no path within the maxTime.
      */
     public static int getSmallestPrice(WeightedGraph graph, int source, int maxTime, List<Pair> destinations) {
-        // TODO
-         return -1;
+        PriorityQueue<Node> pqueue = new PriorityQueue<>();
+        int[] distTo = new int[graph.V()];
+        boolean[] visited = new boolean[graph.V()];
+        for (int i = 0; i < graph.V(); i++) {
+            distTo[i] = Integer.MAX_VALUE;
+        }
+
+        HashMap<Integer, Integer> mapOfShops = new HashMap<>();
+        for (Pair pair : destinations) {
+            mapOfShops.putIfAbsent(pair.getNode(), pair.getPrice());
+        }
+        int bestPrice = Integer.MAX_VALUE;
+
+        distTo[source] = 0;
+        pqueue.add(new Node(source, 0));  //ATTENTION utiliser des Nodes dans la PQ et pas juste l'indice du noeud, comme ca il sait trier par distance!!
+        while (!pqueue.isEmpty()) {
+            Node n = pqueue.poll();
+            int v = n.getValue();
+
+            if (visited[v]) continue;
+            visited[v] = true;
+
+            Integer price = mapOfShops.get(v);
+            if (price != null) {
+                if (price < bestPrice) bestPrice = price;
+                mapOfShops.remove(v);
+            }
+            if (mapOfShops.isEmpty()) {  //serves nothing to compute the smallest path to shop that don't have the gift
+                break;
+            }
+
+            for (DirectedEdge e : graph.outEdges(v)) {
+                int w = e.to();
+                int pathCost = distTo[v] + e.weight();
+
+                if (distTo[w] > pathCost && pathCost <= maxTime) {  //only update the distance and put in the PQ if it is  less than maxtime, no need to go look further since we won't choose these shops anyway
+                    distTo[w] = pathCost;
+                    pqueue.add(new Node(w, distTo[w]));
+                }
+            }
+
+        }
+
+//        for (int i = 0; i < graph.V(); i++) {
+//            if (mapOfShops.containsKey(i) && distTo[i] <= maxTime) {
+//                Integer price = mapOfShops.get(i);
+//                if (price < bestPrice) bestPrice = price;
+//            }
+//        }
+
+        if (bestPrice == Integer.MAX_VALUE) return -1;
+        return bestPrice;
 
     }
 
 
+
+    static class Node implements Comparable<Node> {  //MEGA IMPORTANT a ne pas oublier quand on fait dijkstra et sa PQ
+        private final int value;
+
+        private final int distance;
+
+        public Node(int val, int dist) {
+            this.value = val;
+            this.distance = dist;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return this.distance - o.distance;
+        }
+    }
 
 
     static class Pair {

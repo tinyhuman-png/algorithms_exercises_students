@@ -1,6 +1,9 @@
 package graphs;
 
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 /**
  * In this exercise, we revisit the GlobalWarming
  * class from the sorting package.
@@ -44,6 +47,15 @@ package graphs;
  */
 public class GlobalWarming {
 
+    private final int[][] altitude;
+    private final int waterlevel;
+//    private final HashSet<Point> safePoints;
+//    private int count;
+//    private HashMap<Point, Integer> id;
+
+    private final int[] id;
+    private int count;
+
 
     /**
      * Constructor. The run time of this method is expected to be in 
@@ -53,6 +65,79 @@ public class GlobalWarming {
      * @param waterLevel the water level under which the entries are submerged
      */
     public GlobalWarming(int [][] altitude, int waterLevel) {
+        this.altitude = altitude;
+        this.waterlevel = waterLevel;
+//        this.safePoints = new HashSet<>();
+//
+//        for (int i = 0; i < this.altitude.length; i++) {
+//            for (int j = 0; j < this.altitude[0].length; j++) {
+//                if (this.altitude[i][j] > this.waterlevel) {
+//                    this.safePoints.add(new Point(i, j));
+//                }
+//            }
+//        }
+//
+//        this.id = new HashMap<>();
+//        this.count = 0;
+//        for (Point point : this.safePoints) {
+//            if (!id.containsKey(point)) {
+//                dfs(point);
+//                count ++;
+//            }
+//        }
+
+        int rows = this.altitude.length;
+        int columns = this.altitude[0].length;
+        this.id = new int[rows * columns];  //so there is place for every coordinate in the array
+        for (int i = 0; i < rows * columns; i++) {
+            this.id[i] = (rows * columns) +1;   //this will make it unnecessary to have a boolean marked array because it is impossible to have (rows * columns) +1 island so if the coord is already processed it will be <= (rows * columns) +1
+        }
+        this.count = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                analyseCoord(i, j);
+                if (this.id[i*rows + j] == this.count) this.count ++;  //increment count only if the coordinate is a safe point
+            }
+        }
+
+
+    }
+
+//    private void dfs(Point source) {
+//        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+//        int sourceX = source.x;
+//        int sourceY = source.y;
+//
+//        id.put(source, this.count);
+//        for (int[] direction : directions) {
+//            Point neighbour = new Point(sourceX + direction[0], sourceY + direction[1]);
+//            if(this.safePoints.contains(neighbour) && !this.id.containsKey(neighbour)) {
+//                dfs(neighbour);
+//            }
+//        }
+//
+//    }
+
+    private void analyseCoord(int x, int y) {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int rows = this.altitude.length;
+        int columns = this.altitude[0].length;
+
+        if(this.altitude[x][y] <= this.waterlevel) {
+            this.id[x*rows + y] = -1;
+        } else {
+            if (this.id[x*rows + y] == (rows * columns) +1) this.id[x*rows + y] = this.count;  //update the island id only if it was not already visited before
+            else return;  //if the island was visited before, no need to visit it again
+            for (int[] direction : directions) {
+                int nextX = x + direction[0];
+                int nextY = y + direction[1];
+
+                if(nextX >= 0 && nextX < rows && nextY >= 0 && nextY < columns && this.id[nextX*rows + nextY] == (rows * columns) +1) {
+                    analyseCoord(nextX, nextY);
+                }
+            }
+        }
     }
 
     /**
@@ -61,7 +146,7 @@ public class GlobalWarming {
      * Expected time complexity O(1)
      */
     public int nbIslands() {
-         return 0;
+        return this.count;
     }
 
     /**
@@ -73,7 +158,12 @@ public class GlobalWarming {
      * @param p2 the second point to compare
      */
     public boolean onSameIsland(Point p1, Point p2) {
-         return false;
+//        if (!id.containsKey(p1) || !id.containsKey(p2)) return false;
+//        return id.get(p1).equals(id.get(p2));
+
+        int rows = this.altitude.length;
+        if (id[p1.getX()*rows + p1.getY()] == -1 || id[p2.getX()*rows + p2.getY()] == -1) return false;
+        return id[p1.getX()*rows + p1.getY()] == id[p2.getX()*rows + p2.getY()];
     }
 
 
@@ -106,6 +196,14 @@ public class GlobalWarming {
                 return p.x == this.x && p.y == this.y;
             }
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result = 31 * result + x;
+            result = 31 * result + y;
+            return result;
         }
     }
 }

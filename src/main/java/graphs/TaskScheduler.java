@@ -1,11 +1,8 @@
 package graphs;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-    /**
+/**
      * The class TaskScheduler allows
      * to declare a set of tasks with their dependencies.
      * You have to implement the method:
@@ -57,8 +54,18 @@ import java.util.Map;
          * @param schedule a list of tasks to be scheduled in the order they will be executed.
          */
         public boolean isValid(List<String> schedule) {
-            // TODO
-             return false;
+            // I'd go with a topological sort (?)
+            if (schedule.size() != this.graph.size()) return false;
+            Map<String, List<String >> remainingTasks = new HashMap<>(this.graph);
+
+            for (String task : schedule) {
+                if (!remainingTasks.containsKey(task)) return false;
+                for (String dependency : remainingTasks.get(task)) {
+                    if (remainingTasks.containsKey(dependency)) return false;
+                }
+                remainingTasks.remove(task);
+            }
+            return true;
         }
 
 

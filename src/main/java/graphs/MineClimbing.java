@@ -3,6 +3,9 @@ package graphs;
 //feel free to import anything here
 
 
+import java.util.HashSet;
+import java.util.PriorityQueue;
+
 /**
  * You just bought yourself the latest game from the Majong™
  * studio (recently acquired by Macrosoft™): MineClimb™.
@@ -44,7 +47,72 @@ public class MineClimbing {
      * 0 <= startY, endY < m
      */
     public static int best_distance(int[][] map, int startX, int startY, int endX, int endY) {
-        // TODO
-         return 0;
+        // shortest path with costs, gotta use Dijkstra I guess
+        int rows = map.length;
+        int columns = map[0].length;
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        HashSet<Point> redondance = new HashSet<>();  //IMPORTANT
+
+        int[][] distTo = new int[rows][columns];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                distTo[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        distTo[startX][startY] = 0;
+
+        PriorityQueue<Point> pq = new PriorityQueue<>();
+        pq.add(new Point(startX, startY, 0));
+
+        while (!pq.isEmpty()) {
+            Point v = pq.poll();
+            //comme la pq de Java on ne sait pas modifier un elem qui est dedans, quand on veut modifier une distance pour un noeud qui est deja dans la pq, on l'ajoute juste avec la meilleure distance;
+            if (redondance.contains(v)) continue;  //DONC il faut skip quand on rencontre le noeud outdated avec l'ancienne distance aka quand on a deja rencontre ce noeud avant
+            redondance.add(v);
+            int vX = v.x;
+            int vY = v.y;
+            for (int[] direction : directions) {
+                int wX = vX + direction[0];
+                if (wX < 0) wX = rows -1;
+                else if (wX > rows -1) wX = 0;
+
+                int wY = vY + direction[1];
+                if (wY < 0) wY = columns -1;
+                else if (wY > columns -1) wY = 0;
+
+                int cost = Math.abs(map[vX][vY] - map[wX][wY]);
+                if (distTo[wX][wY] > distTo[vX][vY] + cost) {
+                    distTo[wX][wY] = distTo[vX][vY] + cost;
+                    pq.add(new Point(wX, wY, distTo[wX][wY]));
+                }
+
+            }
+        }
+
+         return distTo[endX][endY];
     }
+
+    private static class Point implements Comparable<Point>{
+        public int x, y, distance;
+        public Point(int coordX, int coordY, int distance) {
+            this.x = coordX;
+            this.y = coordY;
+            this.distance = distance;
+        }
+
+        @Override
+        public int compareTo(Point o) {
+            return this.distance - o.distance;  //ATTENTION comparer selon les distances pour que dans la priority queue la meilleure distance sorte en premier
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result = 31 * result + this.x;
+            result = 31 * result + this.y;
+            return result;
+        }
+
+    }
+
 }

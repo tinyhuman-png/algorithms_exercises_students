@@ -2,6 +2,7 @@ package graphs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Consider this class, DepthFirstPaths, which computes the paths to any connected node
@@ -44,12 +45,20 @@ public class DepthFirstPaths {
         this.s = s;
         edgeTo = new int[G.V()];
         marked = new boolean[G.V()];
+
+//        edgeTo[s] = -1;
         dfs(G, s);
     }
 
     // Depth first search from v
     private void dfs(Graph G, int v) {
-        // TODO
+        this.marked[v] = true;
+        for (int w : G.adj(v)) {
+            if (!this.marked[w]) {
+                this.edgeTo[w] = v;
+                dfs(G, w);
+            }
+        }
     }
 
     /**
@@ -59,8 +68,7 @@ public class DepthFirstPaths {
      * @return true if there is a path, false otherwise
      */
     public boolean hasPathTo(int v) {
-        // TODO
-         return false;
+        return this.marked[v];
     }
 
     /**
@@ -72,8 +80,23 @@ public class DepthFirstPaths {
      * s and vertex v, as an Iterable
      */
     public Iterable<Integer> pathTo(int v) {
-        // TODO
-         return null;
+        Stack<Integer> stack = new Stack<>();
+        if (!hasPathTo(v)) return null;
+
+        stack.push(v);
+        int prev = v;
+        while(prev != s && this.edgeTo[prev] != s) {
+            stack.push(this.edgeTo[prev]);
+            prev = this.edgeTo[prev];
+        }
+        if (prev != s) stack.push(prev);
+
+        List<Integer> path = new ArrayList<>();
+        while (!stack.empty()) {
+            path.add(stack.pop());
+        }
+
+        return path;
     }
 
     static class Graph {

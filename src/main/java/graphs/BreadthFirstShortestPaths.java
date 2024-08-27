@@ -1,7 +1,6 @@
 package graphs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Consider this class, BreadthFirstShortestPaths, which computes the shortest path between
@@ -30,8 +29,8 @@ import java.util.List;
 public class BreadthFirstShortestPaths {
 
     private static final int INFINITY = Integer.MAX_VALUE;
-    private boolean[] marked; // marked[v] = is there an s-v path
-    private int[] distTo;     // distTo[v] = number of edges shortest s-v path
+    private boolean[] marked; // marked[v] = is there an s-v path -> from any s in sources
+    private int[] distTo;     // distTo[v] = number of edges shortest s-v path -> from s in sources than has the shortest path
 
     /**
      * Computes the shortest path between any
@@ -51,7 +50,35 @@ public class BreadthFirstShortestPaths {
 
     // Breadth-first search from multiple sources
     private void bfs(Graph G, Iterable<Integer> sources) {
-        // TODO
+        boolean[] markedByS;
+        int[] distToS;
+        Queue<Integer> queue = new LinkedList<>();
+        for (int s : sources) {
+            //markedByS and distToS must be specific for each source s so we reinitialize them
+            markedByS = new boolean[G.V()];
+            distToS = new int[G.V()];
+
+            markedByS[s] = true;
+            this.marked[s] = true;
+            distToS[s] = 0;
+            this.distTo[s] = 0;
+            queue.add(s);
+
+            while (!queue.isEmpty()) {
+                int v = queue.poll();
+                for (int w : G.adj(v)) {
+                    if (!markedByS[w]) {
+                        markedByS[w] = true;
+                        this.marked[w] = true;  //mark on the global too everytime you meet a node
+                        int cost = distToS[v] + 1;
+                        distToS[w] = cost;
+                        if (this.distTo[w] > cost) this.distTo[w] = cost;  //update global distance only if the distance we found is smaller
+                        queue.add(w);
+                    }
+
+                }
+            }
+        }
     }
 
     /**
@@ -61,8 +88,7 @@ public class BreadthFirstShortestPaths {
      * @return true if there is a path, and false otherwise
      */
     public boolean hasPathTo(int v) {
-        // TODO
-         return false;
+        return this.marked[v];
     }
 
     /**
@@ -73,8 +99,7 @@ public class BreadthFirstShortestPaths {
      * @return the number of edges in a shortest path
      */
     public int distTo(int v) {
-        // TODO
-         return -1;
+        return this.distTo[v];
     }
 
     static class Graph {
