@@ -81,16 +81,25 @@ public class LinearProbingHashST<Key, Value> {
     }
 
     /**
-     * TODO
+     *
      * Resizes the hash table to the given capacity by re-hashing all of the keys
      *
      * @param capacity the capacity
      */
     protected void resize(int capacity) {
+        LinearProbingHashST<Key, Value> auxilliary = new LinearProbingHashST<>(capacity);
+        for (int i = 0; i < this.m; i++) {
+            if (keys[i] != null) {
+                auxilliary.put(keys[i], vals[i]);
+            }
+        }
+        this.keys = auxilliary.keys;
+        this.vals = auxilliary.vals;
+        this.m = capacity;
     }
 
     /**
-     * TODO
+     *
      * Inserts the specified key-value pair into the symbol table, overwriting the old 
      * value with the new value if the symbol table already contains the specified key.
      * The load factor should never exceed 50% so make sure to resize correctly
@@ -100,10 +109,25 @@ public class LinearProbingHashST<Key, Value> {
      * @throws IllegalArgumentException if {@code key} is {@code null}
      */
     public void put(Key key, Value val) {
+        if (key == null) throw new IllegalArgumentException();
+        if (this.n >= this.m/2) resize(2*this.m);
+
+        int i = hash(key);
+        while(this.keys[i] != null) {  //check if the key is already present in the hash table (look at idx = hash(key) and the next idx if they're not null)
+            if (this.keys[i] == key) {
+                this.vals[i] = val;
+                return;
+            }
+            i = (i +1) %this.m;
+        }
+        // if we get here, we know that keys[i] == null, whether i = hash(key) or i = next free idx oof the array + the key isn't already in the array
+        this.keys[i] = key;
+        this.vals[i] = val;
+        this.n ++;  //don't forget to increment the counter of key/value pairs in the table
     }
 
     /**
-     * TODO
+     *
      * Returns the value associated with the specified key.
      * @param key the key
      * @return the value associated with {@code key};
@@ -111,8 +135,15 @@ public class LinearProbingHashST<Key, Value> {
      * @throws IllegalArgumentException if {@code key} is {@code null}
      */
     public Value get(Key key) {
-         return null;
-
+         if (key == null) throw new IllegalArgumentException();
+         int i = hash(key);
+         while (this.keys[i] != null) {
+             if (this.keys[i] == key) {
+                 return this.vals[i];
+             }
+             i = (i +1) %this.m;
+         }
+        return null;
     }
 
     /**

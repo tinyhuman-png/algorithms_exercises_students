@@ -1,6 +1,7 @@
 package searching;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -53,6 +54,7 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
 
     public ArrayList<Integer> idxLeftNode; // idxLeftNode[i] = index of left node of i
     public ArrayList<Integer> idxRightNode; // idxRightNode[i] = index of right node of i
+    public ArrayList<Boolean> availableForGet;
 
 
     final int NONE = -1;
@@ -62,6 +64,7 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
         values = new ArrayList<>();
         idxLeftNode = new ArrayList<>();
         idxRightNode = new ArrayList<>();
+        availableForGet = new ArrayList<>();
     }
 
     private void addNode(Key key, Value val) {
@@ -69,6 +72,7 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
         values.add(val);
         idxLeftNode.add(NONE);
         idxRightNode.add(NONE);
+        availableForGet.add(true);
     }
 
     /**
@@ -85,10 +89,14 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
             ArrayList<Integer> idxChild;
             do {
                 int cmp = key.compareTo(keys.get(i));
-                if (cmp == 0) {
+                if (cmp == 0 && availableForGet.get(i)) {
                     // key already present in this node, just replace its value
                     values.set(i,val);
                     return false;
+                } else if (cmp == 0) {  //key present before then "deleted" then now added back
+                    values.set(i,val);
+                    availableForGet.set(i, true);
+                    return true;
                 } else {
                     // key different, follow the left or right link
                     idxChild = cmp < 0 ? idxLeftNode : idxRightNode;
@@ -111,7 +119,7 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
      */
     public Value get(Key key) {
         int i = getNodeIndex(key);
-        if (i == NONE) return null;
+        if (i == NONE || !availableForGet.get(i)) return null;
         return values.get(i);
     }
 
@@ -137,12 +145,22 @@ public class ArrayBSTDelete<Key extends Comparable<Key>, Value> {
         return min_of_subtree(idxLeftNode.get(node_index));
     }
 
+
     /**
      * Delete the key (and its associated value) from the BST.
      * @param key the key to delete
      * @return true if the key was deleted, false if the key was not present
      */
     public boolean delete(Key key) {
+        int index_key = getNodeIndex(key);
+        if (index_key == NONE || !availableForGet.get(index_key)) return false;
+        availableForGet.set(index_key, false);
+        return true;
+    }
+
+
+    //too complicated for nothing -> USE THE HINT
+    public boolean deleteOLD(Key key) {
         int index_key = getNodeIndex(key);
         if (index_key == NONE) return false;
         if (idxLeftNode.get(index_key) == NONE && idxRightNode.get(index_key) == NONE) {

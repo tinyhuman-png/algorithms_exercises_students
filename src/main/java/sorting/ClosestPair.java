@@ -24,7 +24,7 @@ public class ClosestPair {
       * @param a the array in which the value are looked for
       * @param x the target value for the sum
       */
-    public static int[] closestPair(int [] a, int x) {
+    public static int[] closestPair0(int [] a, int x) {
 //        first try, pas ok car trop lent
         int smallestDiff = Integer.MAX_VALUE;
         int[] indexes = {0, 0};
@@ -46,5 +46,18 @@ public class ClosestPair {
         return indexes;
 
 //        idee pour faire mieux -> trier la liste et faire comme une recherche dichotomique avec low et high, se rapprocher petit a petit de x  ??
+    }
+
+    public static int[] closestPair(int [] a, int x) {
+        Arrays.sort(a);
+        return null;
+    }
+
+    private static int[] dichotomicSearch(int[] a, int lo, int hi, int x, int[] bestApprox) {
+        if (lo <= hi) return bestApprox;
+        int mid = (lo + hi)/2;
+        // ????? comment comparer tout??
+
+        return new int[2];
     }
 }

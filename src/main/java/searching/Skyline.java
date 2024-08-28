@@ -56,7 +56,81 @@ public class Skyline {
      *          The key points are sorted by their x-coordinate in the list.
      */
     public static List<int[]> getSkyline(int[][] buildings) {
-		 return null;
+		//consider that the buildings are already in ascending order of left side
+
+        LinkedList<int[]> keypoints = new LinkedList<>();
+        PriorityQueue<Point> pqueue = new PriorityQueue<>();
+
+        for (int[] build : buildings) {
+            pqueue.add(new Point(build[0], build[1]));
+            pqueue.add(new Point(build[2], -build[1]));
+        }
+
+        TreeSet<Integer> max = new TreeSet<>();
+        max.add(0); //ajoute a la fin de la linkedlist (last)
+        while(!pqueue.isEmpty()) {
+            Point p = pqueue.poll();
+
+            int maxInt = max.last();
+            if ((p.heightChange > maxInt && !keypoints.isEmpty() && p.x != keypoints.getLast()[0]) || (p.heightChange > maxInt && keypoints.isEmpty())) {
+                max.add(p.heightChange);
+                int[] key = {p.x, p.heightChange};
+                keypoints.add(key);
+            } else if (p.heightChange > maxInt && p.x == keypoints.getLast()[0] && keypoints.getLast()[1] < p.heightChange){
+                keypoints.removeLast();
+                max.add(p.heightChange);
+                int[] key = {p.x, p.heightChange};
+                keypoints.add(key);
+            } else if (p.heightChange > 0) {
+                max.add(p.heightChange);
+            } else {
+                max.remove(-p.heightChange);
+                if (max.isEmpty()) {
+                    max.add(0);
+                    int[] key = {p.x, 0};
+                    keypoints.add(key);
+                } else if (max.last() < -p.heightChange) {
+                    int[] key = {p.x, max.last()};
+                    keypoints.add(key);
+                }
+            }
+        }
+
+//        HashMap<Integer, int[]> correspondanceMap = new HashMap<>();
+//        for (int[] key : keypoints) {
+//            if (correspondanceMap.containsKey(key[0])) {
+//                int[] oldValue = correspondanceMap.get(key[0]);
+//                if (oldValue[1] < key[1]) {
+//                    correspondanceMap.put(key[0], key);
+//                }
+//            } else {
+//                correspondanceMap.put(key[0], key);
+//            }
+//        }
+//        List<int[]> returnPoints = new ArrayList<>(correspondanceMap.values());
+//        returnPoints.sort(new Comparator<int[]>() {
+//            @Override
+//            public int compare(int[] o1, int[] o2) {
+//                return o1[0] - o2[0];
+//            }
+//        });
+
+        return keypoints;
+    }
+
+    private static class Point implements Comparable<Point> {
+        public int x;
+        public int heightChange;
+
+        public Point(int x, int height) {
+            this.x = x;
+            this.heightChange = height;
+        }
+
+        @Override
+        public int compareTo(Point o) {
+            return this.x - o.x;
+        }
     }
 
 }

@@ -105,8 +105,39 @@ public class Median {
      * @param hi the highest index from which the median is computed
      */
     public static int median(Vector vec, int lo, int hi) {
-        // TODO
-         return -1;
+        // typically a quicksort until the index of the partitionning is (lo + hi)/2
+        
+        sortToMedian(vec, lo, hi, (lo+hi)/2);
+        return vec.get((lo+hi)/2);
+    }
+
+    private static int sortToMedian(Vector vec, int lo, int hi, int mid) {
+        if (hi <= lo) return -1;
+
+        int j = partition(vec, lo, hi);
+        if (j == mid) return mid;
+
+        int reValLeft = sortToMedian(vec, lo, j-1, mid);
+        if (reValLeft == mid) return mid;
+        int reValRight = sortToMedian(vec, j+1, hi, mid);
+        if (reValRight == mid) return mid;
+        return -1;
+    }
+
+    private static int partition(Vector vec, int lo, int hi) {  //a connaitre car algo tuyau pour trier!
+        int i = lo;
+        int j = hi +1;
+        int v = vec.get(lo);
+        while (true) {
+            while(vec.get(++i) < v) if (i == hi) break;
+            while(v < vec.get(--j)) if (j == lo) break;
+            if (i >= j) break;
+
+            vec.swap(i, j);
+        }
+
+        vec.swap(lo, j);
+        return j;
     }
 
 }

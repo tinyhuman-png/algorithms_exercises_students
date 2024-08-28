@@ -1,5 +1,7 @@
 package sorting;
 
+import java.util.Arrays;
+
 /**
  * Author Pierre Schaus
  *
@@ -38,14 +40,20 @@ public class MergeSort {
 
     // Mergesort a[lo..hi] using auxiliary array aux[lo..hi]
     private static void sort(Comparable[] a, Comparable[] aux, int lo, int hi) {
-        // TODO
+        if (hi <= lo) return; //if array of size 1 it is sorted
+
+        int mid = (lo + hi)/2;
+        sort(a, aux, lo, mid);
+        sort(a, aux, mid +1, hi);
+        merge(a, aux, lo, mid, hi);
     }
 
     /**
      * Rearranges the array in ascending order, using the natural order
      */
     public static void sort(Comparable[] a) {
-        // TODO
+        Comparable[] aux = new Comparable[a.length];
+        sort(a, aux, 0, a.length -1);
     }
 }
 
